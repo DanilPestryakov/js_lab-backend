@@ -22,7 +22,7 @@ usersRouter.post('/register', parser, bodyValidateMiddleware(schemas.userPOST),
 		response.status(201).json(user);
 	}));
 
-usersRouter.get('/login', parser, bodyValidateMiddleware(schemas.userPOST),
+usersRouter.post('/login', parser, bodyValidateMiddleware(schemas.userPOST),
 	asyncHandler(async (request, response) => {
 		const login = request.body.login;
 		const user = await User.getUserByLogin(login);

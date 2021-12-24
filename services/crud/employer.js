@@ -42,7 +42,10 @@ export class Employer {
 
 	static async getAllEmployeesFilterSort(name = null, surname = null, sortedBy = 'salary',
 	                                        sortOrder = 'ASC', pageNumber = null) {
+		const pageSize = 25
 		const query = db(Employer.#tableName).select('*');
+		let [allCount] = await db(Employer.#tableName).count('*');
+		allCount = Number.parseInt(allCount.count)
 		if (name) {
 			query.whereRaw(`LOWER(name) LIKE '%${name.toLowerCase()}%'`);
 		}
@@ -53,13 +56,13 @@ export class Employer {
 
 		query.orderBy(sortedBy, sortOrder);
 		if (pageNumber) {
-			query.limit(25);
-			query.offset(25 * (pageNumber - 1));
+			query.limit(pageSize);
+			query.offset(pageSize * (pageNumber - 1));
 		}
 
 		query.catch(error => {
 			throw error;
 		});
-		return query;
+		return {employees: await query, pageCount: Math.ceil(allCount/pageSize), allCount: allCount};
 	}
 }

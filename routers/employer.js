@@ -20,12 +20,8 @@ employeesRouter.get('/', parser, asyncHandler(async (request, response) => {
 		response.status(400).json({data: request.query, errorDetails: message});
 	} else {
 		const {name, surname, sortedBy, order, page} = validationResult.value;
-		const employees = await Employer.getAllEmployeesFilterSort(name, surname, sortedBy, order, page);
-		const outEmployees = {
-			employees: employees,
-			count: employees.length,
-		};
-		response.status(200).json(outEmployees);
+		const employeesDict = await Employer.getAllEmployeesFilterSort(name, surname, sortedBy, order, page);
+		response.status(200).json(employeesDict);
 	}
 }));
 
