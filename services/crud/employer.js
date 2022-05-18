@@ -44,8 +44,8 @@ export class Employer {
 	                                        sortOrder = 'ASC', pageNumber = null) {
 		const pageSize = 25
 		const query = db(Employer.#tableName).select('*');
-		let [allCount] = await db(Employer.#tableName).count('*');
-		allCount = Number.parseInt(allCount.count)
+		/*let [allCount] = await db(Employer.#tableName).count('*');
+		allCount = Number.parseInt(allCount.count)*/
 		if (name) {
 			query.whereRaw(`LOWER(name) LIKE '%${name.toLowerCase()}%'`);
 		}
@@ -54,15 +54,20 @@ export class Employer {
 			query.whereRaw(`LOWER(surname) LIKE '%${surname.toLowerCase()}%'`);
 		}
 
-		query.orderBy(sortedBy, sortOrder);
+		let filteredEntities = await query.clone().groupBy('id');
+		let allCount = filteredEntities.length
+
+		let queryClone = query.clone();
+
+		queryClone.orderBy(sortedBy, sortOrder);
 		if (pageNumber) {
-			query.limit(pageSize);
-			query.offset(pageSize * (pageNumber - 1));
+			queryClone.limit(pageSize);
+			queryClone.offset(pageSize * (pageNumber - 1));
 		}
 
-		query.catch(error => {
+		queryClone.catch(error => {
 			throw error;
 		});
-		return {employees: await query, pageCount: Math.ceil(allCount/pageSize), allCount: allCount};
+		return {employees: await queryClone, pageCount: Math.ceil(allCount/pageSize), allCount: allCount};
 	}
 }
